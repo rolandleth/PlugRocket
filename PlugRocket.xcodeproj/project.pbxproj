@@ -7,12 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2A0E68211C41581D00E9CFD0 /* xcode_uuid_script.rb in Resources */ = {isa = PBXBuildFile; fileRef = 2A0E68201C41581D00E9CFD0 /* xcode_uuid_script.rb */; };
 		2A5AED221C1EE367002DC817 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5AED211C1EE367002DC817 /* AppDelegate.swift */; };
 		2A5AED241C1EE367002DC817 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A5AED231C1EE367002DC817 /* Assets.xcassets */; };
 		2A5AED321C1EE367002DC817 /* PlugRocketTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5AED311C1EE367002DC817 /* PlugRocketTests.swift */; };
 		2A5AED3D1C1EE4DC002DC817 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2A5AED3C1C1EE4DC002DC817 /* MainMenu.xib */; };
 		2A5AED3F1C1F058E002DC817 /* Menu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5AED3E1C1F058E002DC817 /* Menu.swift */; };
-		2A5AED411C1F1702002DC817 /* the_script.rb in Resources */ = {isa = PBXBuildFile; fileRef = 2A5AED401C1F1702002DC817 /* the_script.rb */; };
+		2A5AED411C1F1702002DC817 /* plugins_script.rb in Resources */ = {isa = PBXBuildFile; fileRef = 2A5AED401C1F1702002DC817 /* plugins_script.rb */; };
 		2AF0F4901C20A7AB00A043A1 /* Sandbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF0F48F1C20A7AB00A043A1 /* Sandbox.swift */; };
 		2AF0F4921C20A9F200A043A1 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF0F4911C20A9F200A043A1 /* Utils.swift */; };
 /* End PBXBuildFile section */
@@ -28,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2A0E68201C41581D00E9CFD0 /* xcode_uuid_script.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = xcode_uuid_script.rb; sourceTree = "<group>"; };
 		2A5AED1E1C1EE367002DC817 /* PlugRocket.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlugRocket.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A5AED211C1EE367002DC817 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2A5AED231C1EE367002DC817 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -37,7 +39,7 @@
 		2A5AED331C1EE367002DC817 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2A5AED3C1C1EE4DC002DC817 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		2A5AED3E1C1F058E002DC817 /* Menu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Menu.swift; sourceTree = "<group>"; };
-		2A5AED401C1F1702002DC817 /* the_script.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = the_script.rb; sourceTree = "<group>"; };
+		2A5AED401C1F1702002DC817 /* plugins_script.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = plugins_script.rb; sourceTree = "<group>"; };
 		2AF0F48E1C204B4600A043A1 /* PlugRocket.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PlugRocket.entitlements; sourceTree = "<group>"; };
 		2AF0F48F1C20A7AB00A043A1 /* Sandbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sandbox.swift; sourceTree = "<group>"; };
 		2AF0F4911C20A9F200A043A1 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
@@ -105,7 +107,8 @@
 			children = (
 				2A5AED231C1EE367002DC817 /* Assets.xcassets */,
 				2AF0F48E1C204B4600A043A1 /* PlugRocket.entitlements */,
-				2A5AED401C1F1702002DC817 /* the_script.rb */,
+				2A5AED401C1F1702002DC817 /* plugins_script.rb */,
+				2A0E68201C41581D00E9CFD0 /* xcode_uuid_script.rb */,
 				2A5AED3C1C1EE4DC002DC817 /* MainMenu.xib */,
 				2A5AED281C1EE367002DC817 /* Info.plist */,
 			);
@@ -203,8 +206,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				2A5AED241C1EE367002DC817 /* Assets.xcassets in Resources */,
-				2A5AED411C1F1702002DC817 /* the_script.rb in Resources */,
+				2A5AED411C1F1702002DC817 /* plugins_script.rb in Resources */,
 				2A5AED3D1C1EE4DC002DC817 /* MainMenu.xib in Resources */,
+				2A0E68211C41581D00E9CFD0 /* xcode_uuid_script.rb in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

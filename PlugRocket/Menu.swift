@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class Menu: NSMenu {
+class Menu: NSMenu, NSUserNotificationCenterDelegate {
 
 	private var updatedPlugins = 0
 	private var uptodatePlugins = 0
@@ -28,25 +28,8 @@ class Menu: NSMenu {
 		return si
 	}()
 	
-	private lazy var pluginCountItem: NSMenuItem = {
-		let mi     = NSMenuItem()
-		mi.enabled = false
-		mi.hidden = true
-		
-		return mi
-	}()
-	
 	private lazy var updateItem: NSMenuItem = {
 		let mi     = NSMenuItem(title: "Update now", action: "updatePlugins", keyEquivalent: "")
-		mi.target  = self
-		mi.enabled = true
-		
-		return mi
-	}()
-	
-	private lazy var checkRegularlyItem: NSMenuItem = {
-		let mi     = NSMenuItem()
-		mi.action  = "toggleCheckRegularly"
 		mi.target  = self
 		mi.enabled = true
 		
@@ -93,22 +76,8 @@ class Menu: NSMenu {
 		return mi
 	}()
 	
-	private lazy var checkRegularlyTimer: NSTimer = self._checkRegularlyTimer
-	private var _checkRegularlyTimer: NSTimer {
-		return NSTimer.scheduledTimerWithTimeInterval(24 * 3600,
-			target: self,
-			selector: "updatePlugins",
-			userInfo: nil,
-			repeats: true
-		)
-	}
-	
 	
 	// MARK: - UI
-	
-	@objc private func darkModeChanged() {
-		pluginCountItem.attributedTitle = Utils.disabledMenuTitleWithString("All plugins are up-to-date", font: self.font)
-	}
 	
 	private func updateUpdateItemTitle() {
 		updateItem.title = "Update" + (Utils.displayTotalPlugins ? " (\(Utils.totalPlugins))" : "")
@@ -118,42 +87,8 @@ class Menu: NSMenu {
 		displayTotalItem.title = (Utils.displayTotalPlugins ? "Hide" : "Show") + " total plugins"
 	}
 	
-	private func updateForRegularChecking() {
-		// Timer needs to be recreated after invalidation.
-		checkRegularlyTimer = _checkRegularlyTimer
-		checkRegularlyTimer.fire()
-		checkRegularlyItem.title = "Disable daily update"
-		
-		addInfoItems()
-	}
-	
-	private func addInfoItems() {
-		insertItem(NSMenuItem.separatorItem(), atIndex: 0)
-		insertItem(pluginCountItem, atIndex: 0)
-	}
-	
 	
 	// MARK: - Actions
-	
-	@objc private func toggleCheckRegularly() {
-		if Utils.checkRegularly {
-			checkRegularlyTimer.invalidate()
-			checkRegularlyItem.title = "Enable daily update"
-			
-			for _ in 0..<2 {
-				removeItemAtIndex(0)
-			}
-		}
-		else {
-			// Also used in init, due to the required timer.
-			updateForRegularChecking()
-		}
-		
-		darkModeChanged()
-		
-		Utils.checkRegularly = !Utils.checkRegularly
-		Utils.userDefaults.synchronize()
-	}
 	
 	@objc private func toggleDisplayTotal() {
 		Utils.displayTotalPlugins = !Utils.displayTotalPlugins
@@ -168,7 +103,7 @@ class Menu: NSMenu {
 	}
 	
 	// Just for the button, because the sender gets fucked up with the completionBlock otherwise
-	@objc func updatePlugins() {
+	@objc private func updatePlugins() {
 		updatePlugins({})
 	}
 	
@@ -185,8 +120,8 @@ class Menu: NSMenu {
 			self.updateItem.attributedTitle = nil
 			self.updateUpdateItemTitle()
 			
-			// Since we don't have a "Show total plugins" item if there is 
-			// no data about plugins yet, or there are 0 plugins,
+			// Since we don't have a "Show total plugins" menu item
+			// if there is no data about plugins yet, or there are 0 plugins,
 			// the first time an update is done and plugins are found,
 			// auto-turn on the option, so it's obvious what it does.
 			if plugins == 0 && self.totalPlugins > 0 {
@@ -204,44 +139,55 @@ class Menu: NSMenu {
 		}
 		
 		Sandbox.askForSandboxPermissionFor(.Plugins, success: {
-			let task = NSTask()
-			task.launchPath = "/usr/bin/ruby"
-			task.arguments = [
-				NSBundle.mainBundle().pathForResource("the_script", ofType: "rb")!,
-				Utils.cleanedPluginsURL
-			]
+			guard let xcodeUUID = Sandbox.runScriptFor(.Xcode) else {
+				Utils.postNotificationWithText("Could not read Xcode's UUID.")
+				return // This should never happen
+			}
 			
-			let pipe = NSPipe()
-			task.standardOutput = pipe
-			task.launch()
+			if Utils.xcodeUUID != xcodeUUID {
+				Utils.xcodeUUID = xcodeUUID.stringByReplacingOccurrencesOfString("\n",
+					withString: ""
+				)
+				Utils.userDefaults.synchronize()
+			}
 			
-			let resultData = pipe.fileHandleForReading.readDataToEndOfFile()
-			
+			let manager = NSFileManager.defaultManager()
 			guard
-				let resultString = String(data: resultData, encoding: NSUTF8StringEncoding)
-				else {
-					Utils.postNotificationWithText(genericErrorMessage)
-					return
+				let pluginURL = NSURL(string: Utils.pluginsURL),
+				var plists = try? manager.contentsOfDirectoryAtURL(pluginURL,
+					includingPropertiesForKeys: [],
+					options: .SkipsHiddenFiles) else {
+						Utils.postNotificationWithText(genericErrorMessage)
+						return
 			}
 			
-			let values = resultString.componentsSeparatedByString(",").map() {
-				return NSString(string: $0).integerValue
+			plists = plists.map() { url in
+				return url.URLByAppendingPathComponent("/Contents/Info.plist")
 			}
 			
-			guard values.count == 2 else {
-				if resultString.isEmpty {
-					Utils.postNotificationWithText(genericErrorMessage)
-				}
-				else {
-					Utils.postNotificationWithText(resultString.componentsSeparatedByString("\n").first!)
+			var updatedPlugins = 0
+			var uptodatePlugins = 0
+			for plist in plists {
+				guard
+					let plistDictionary = NSMutableDictionary(contentsOfURL: plist),
+					var ids = plistDictionary["DVTPlugInCompatibilityUUIDs"] as? [String] else {
+						Utils.postNotificationWithText(genericErrorMessage)
+						return
 				}
 				
-				return
+				guard !ids.contains(Utils.xcodeUUID) else { uptodatePlugins++; continue }
+				
+				updatedPlugins++
+				ids.append(Utils.xcodeUUID)
+				plistDictionary["DVTPlugInCompatibilityUUIDs"] = ids
+				plistDictionary.writeToURL(plist, atomically: true)
 			}
 			
-			self.postUpdateNotification(values)
+			self.postUpdateNotification([updatedPlugins, uptodatePlugins])
 			finishUpdate()
 			completion()
+			
+			return
 		}) {
 			finishUpdate()
 			Utils.postNotificationWithText("You need to grant permission to the plug-ins folder.")
@@ -251,10 +197,6 @@ class Menu: NSMenu {
 	private func postUpdateNotification(values: [Int]) {
 		updatedPlugins = values.first!
 		uptodatePlugins = values.last!
-		
-		// More expressive than its guard counterpart.
-		// guard !Utils.checkRegularly || updatedPlugins > 0 else { return }
-		if Utils.checkRegularly && updatedPlugins == 0 { return }
 		
 		let text: String
 		
@@ -288,16 +230,13 @@ class Menu: NSMenu {
 	init() {
 		super.init(title: "")
 		
+		NSUserNotificationCenter
+			.defaultUserNotificationCenter()
+			.delegate = self
+		
 		autoenablesItems = false
 		
-		NSDistributedNotificationCenter.defaultCenter().addObserver(self,
-			selector: "darkModeChanged",
-			name: "AppleInterfaceThemeChangedNotification",
-			object: nil
-		)
-		
 		addItem(updateItem)
-//		addItem(checkRegularlyItem)
 		if Utils.totalPlugins > 0 {
 			addItem(displayTotalItem)
 		}
@@ -310,18 +249,13 @@ class Menu: NSMenu {
 		quitItem.target = self
 		addItem(quitItem)
 		
-		if Utils.checkRegularly {
-			updateForRegularChecking()
-		}
-		else if Utils.closeAfterUpdate && NSEvent.modifierFlags() != .AlternateKeyMask {
+		if Utils.closeAfterUpdate && NSEvent.modifierFlags() != .AlternateKeyMask {
 			updatePlugins() {
 				self.quit()
 			}
 		}
 		else {
 			Utils.closeAfterUpdate = false
-			checkRegularlyItem.title = "Enable daily update"
-			darkModeChanged() // To update the menu items
 			
 			statusItem.menu = self
 			updateUpdateItemTitle() // To update the title
@@ -330,5 +264,9 @@ class Menu: NSMenu {
 	
 	required init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
+	}
+	
+	func userNotificationCenter(center: NSUserNotificationCenter, shouldPresentNotification notification: NSUserNotification) -> Bool {
+		return true
 	}
 }

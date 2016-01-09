@@ -33,27 +33,43 @@ struct Sandbox {
 		return op
 	}()
 	
-	static func saveBookmarkDataFor(location: Location) {
-		// I was afraid the app would need permission to read from Xcode's contents.
-		// Apparently not, but I just left this here, for an unexpected future.
-		let URL = location == .Plugins ? Utils.pluginsURL : Utils.xcodeURL
-		let key = location == .Plugins ? Utils.pluginsURLBookmarkKey : Utils.xcodeURLBookmarkKey
+	static func runScriptFor(location: Location) -> String? {
+		let script = location == .Plugins ? "plugins_script" : "xcode_uuid_script"
 		
-		guard
-			let bookmarkData = try? NSURL(string: URL)?
-				.bookmarkDataWithOptions(.WithSecurityScope,
-					includingResourceValuesForKeys: nil,
-					relativeToURL: nil)
-			where bookmarkData != nil
-			else {
-				return
-		}
+		let task = NSTask()
+		task.launchPath = "/usr/bin/ruby"
+		task.arguments = [
+			NSBundle.mainBundle().pathForResource(script, ofType: "rb")!,
+			Utils.cleanedPluginsURL
+		]
 		
-		Utils.userDefaults.setObject(bookmarkData, forKey: key)
-		Utils.userDefaults.synchronize()
+		let pipe = NSPipe()
+		task.standardOutput = pipe
+		task.launch()
+		
+		let resultData = pipe.fileHandleForReading.readDataToEndOfFile()
+		let resultString = String(data: resultData, encoding: NSUTF8StringEncoding)
+		
+		return resultString
 	}
 	
-	static func bookmarkedURLFor(location: Location) -> NSURL {
+	// I was afraid the app would need permission to read from Xcode's contents.
+	// Apparently not, but I just left the logic here, for an unexpected future.
+	static func askForSandboxPermissionFor(location: Location, success: () -> Void, failure: () -> Void) {
+		dispatch_async(dispatch_get_main_queue()) {
+			let bookmarkURL = self.bookmarkedURLFor(location)
+			
+			guard bookmarkURL.absoluteString != "failed" && bookmarkURL.absoluteString != "stale" else {
+				presentOpenPanelFor(location, success: success, failure: failure)
+				return
+			}
+			
+			bookmarkURL.startAccessingSecurityScopedResource()
+			success()
+		}
+	}
+	
+	private static func bookmarkedURLFor(location: Location) -> NSURL {
 		var staleBookmark: ObjCBool = false
 		guard
 			let bookmarkData = Utils.userDefaults.dataForKey(Utils.pluginsURLBookmarkKey),
@@ -71,23 +87,8 @@ struct Sandbox {
 		return url
 	}
 	
-	static func askForSandboxPermissionFor(location: Location, success: () -> Void, failure: () -> Void) {
-		dispatch_async(dispatch_get_main_queue()) {
-			let bookmarkURL = self.bookmarkedURLFor(location)
-			
-			guard bookmarkURL.absoluteString != "failed" && bookmarkURL.absoluteString != "stale" else {
-				presentOpenPanelFor(location, success: success, failure: failure)
-				return
-			}
-			
-			bookmarkURL.startAccessingSecurityScopedResource()
-			success()
-		}
-	}
-	
-	static func presentOpenPanelFor(location: Location, success: () -> Void, failure: () -> Void) {
+	private static func presentOpenPanelFor(location: Location, success: () -> Void, failure: () -> Void) {
 		NSApplication.sharedApplication().activateIgnoringOtherApps(true)
-		
 		let tappedButton = openPanel.runModal()
 		
 		guard tappedButton == NSFileHandlingPanelOKButton && openPanel.URL?.absoluteString == Utils.pluginsURL else {
@@ -97,5 +98,20 @@ struct Sandbox {
 		
 		saveBookmarkDataFor(location)
 		success()
+	}
+	
+	private static func saveBookmarkDataFor(location: Location) {
+		guard
+			let bookmarkData = try? NSURL(string: Utils.pluginsURL)?
+				.bookmarkDataWithOptions(.WithSecurityScope,
+					includingResourceValuesForKeys: nil,
+					relativeToURL: nil)
+			where bookmarkData != nil
+			else {
+				return
+		}
+		
+		Utils.userDefaults.setObject(bookmarkData, forKey: Utils.pluginsURLBookmarkKey)
+		Utils.userDefaults.synchronize()
 	}
 }

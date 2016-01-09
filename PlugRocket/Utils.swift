@@ -14,11 +14,7 @@ struct Utils {
 	private static let closeAfterUpdateKey = "closeAfterUpdateKey"
 	private static let displayTotalPluginsKey = "displayTotalPlugins"
 	private static let totalPluginsKey = "totalPlugins"
-	private static let checkRegularlyKey = "checkRegularly"
-	private static let checkIntervalKey = "checkInterval"
-	private static let checkedXcodeUUIDKey = "checkedXcodeUUID"
-	static let xcodeURLBookmarkKey = "xcodeURLBookmark"
-	static let xcodeURL = "/Applications/Xcode.app/Contents/Info"
+	private static let xcodeUUIDKey = "xcodeUUID"
 	
 	static var user: String {
 		return NSFileManager().currentDirectoryPath.componentsSeparatedByString("/")[2]
@@ -48,18 +44,13 @@ struct Utils {
 		get { return userDefaults.integerForKey(totalPluginsKey) }
 		set { userDefaults.setInteger(newValue, forKey: totalPluginsKey) }
 	}
-	static var checkRegularly: Bool {
-		get { return userDefaults.boolForKey(checkRegularlyKey) }
-		set { userDefaults.setBool(newValue, forKey: checkRegularlyKey) }
+	static var xcodeUUID: String {
+		get { return userDefaults.stringForKey(xcodeUUIDKey) ?? "" }
+		set { userDefaults.setObject(newValue, forKey: xcodeUUIDKey) }
 	}
-	static var checkInterval: Int {
-		get { return userDefaults.integerForKey(checkIntervalKey) }
-		set { userDefaults.setInteger(newValue, forKey: checkIntervalKey) }
-	}
+	
 	static var userDefaults: NSUserDefaults { return NSUserDefaults.standardUserDefaults() }
-	static var xcodeUUIDChecked: String { return userDefaults.stringForKey(checkedXcodeUUIDKey) ?? "" }
 	static var darkMode: Bool { return userDefaults.stringForKey("AppleInterfaceStyle") == "Dark" }
-	static var xcodeUUID: String { return userDefaults.stringForKey(checkedXcodeUUIDKey) ?? "" }
 	
 	
 	// MARK: - Helpers
