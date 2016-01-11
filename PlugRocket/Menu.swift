@@ -47,10 +47,10 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 	}()
 	
 	private lazy var displayTotalItem: NSMenuItem = {
-		let mi     = NSMenuItem()
-		mi.action  = "toggleDisplayTotal"
+		let mi     = NSMenuItem(title: "Show total plugins", action: "toggleDisplayTotal", keyEquivalent: "")
 		mi.target  = self
 		mi.enabled = true
+		mi.state = Utils.displayTotalPlugins ? NSOnState : NSOffState
 		
 		return mi
 	}()
@@ -93,10 +93,6 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		updateItem.title = "Update" + (Utils.displayTotalPlugins ? " (\(Utils.totalPlugins))" : "")
 	}
 	
-	private func updateDisplayTotalItemTitle() {
-		displayTotalItem.title = (Utils.displayTotalPlugins ? "Hide" : "Show") + " total plugins"
-	}
-	
 	
 	// MARK: - Actions
 	
@@ -121,8 +117,8 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		Utils.displayTotalPlugins = !Utils.displayTotalPlugins
 		Utils.userDefaults.synchronize()
 		
+		displayTotalItem.state = Utils.displayTotalPlugins ? NSOnState : NSOffState
 		updateUpdateItemTitle()
-		updateDisplayTotalItemTitle()
 	}
 	
 	@objc private func quit() {
@@ -154,8 +150,9 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 			if plugins == 0 && self.totalPlugins > 0 {
 				Utils.displayTotalPlugins = true
 				Utils.userDefaults.synchronize()
+				
 				self.updateUpdateItemTitle()
-				self.updateDisplayTotalItemTitle()
+				self.displayTotalItem.state = NSOnState
 			}
 			
 			if self.totalPlugins > 0 && self.displayTotalItem.menu == nil {
@@ -269,7 +266,6 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		}
 		addItem(startAtLoginItem)
 		addItem(closeAfterUpdateMenuItem)
-		updateDisplayTotalItemTitle()
 		addItem(NSMenuItem.separatorItem())
 		
 		let quitItem = NSMenuItem(title: "Quit", action: "quit", keyEquivalent: "")
