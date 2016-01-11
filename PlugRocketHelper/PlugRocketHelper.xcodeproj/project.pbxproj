@@ -1,0 +1,298 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2A499BC71C42BD3E00CFE643 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A499BC61C42BD3E00CFE643 /* AppDelegate.swift */; };
+		2A499BC91C42BD3E00CFE643 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A499BC81C42BD3E00CFE643 /* Assets.xcassets */; };
+		2A499BCC1C42BD3E00CFE643 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2A499BCA1C42BD3E00CFE643 /* MainMenu.xib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2A499BC31C42BD3E00CFE643 /* PlugRocketHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlugRocketHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2A499BC61C42BD3E00CFE643 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		2A499BC81C42BD3E00CFE643 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2A499BCB1C42BD3E00CFE643 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		2A499BCD1C42BD3E00CFE643 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2A499BDB1C42BE3F00CFE643 /* PlugRocketHelper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PlugRocketHelper.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2A499BC01C42BD3E00CFE643 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2A499BBA1C42BD3E00CFE643 = {
+			isa = PBXGroup;
+			children = (
+				2A499BC51C42BD3E00CFE643 /* PlugRocketHelper */,
+				2A499BC41C42BD3E00CFE643 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2A499BC41C42BD3E00CFE643 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2A499BC31C42BD3E00CFE643 /* PlugRocketHelper.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2A499BC51C42BD3E00CFE643 /* PlugRocketHelper */ = {
+			isa = PBXGroup;
+			children = (
+				2A499BDB1C42BE3F00CFE643 /* PlugRocketHelper.entitlements */,
+				2A499BC61C42BD3E00CFE643 /* AppDelegate.swift */,
+				2A499BC81C42BD3E00CFE643 /* Assets.xcassets */,
+				2A499BCA1C42BD3E00CFE643 /* MainMenu.xib */,
+				2A499BCD1C42BD3E00CFE643 /* Info.plist */,
+			);
+			path = PlugRocketHelper;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2A499BC21C42BD3E00CFE643 /* PlugRocketHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A499BD01C42BD3E00CFE643 /* Build configuration list for PBXNativeTarget "PlugRocketHelper" */;
+			buildPhases = (
+				2A499BBF1C42BD3E00CFE643 /* Sources */,
+				2A499BC01C42BD3E00CFE643 /* Frameworks */,
+				2A499BC11C42BD3E00CFE643 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PlugRocketHelper;
+			productName = PlugRocketHelper;
+			productReference = 2A499BC31C42BD3E00CFE643 /* PlugRocketHelper.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2A499BBB1C42BD3E00CFE643 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0720;
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Roland Leth";
+				TargetAttributes = {
+					2A499BC21C42BD3E00CFE643 = {
+						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = 78653ABY96;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.Mac = {
+								enabled = 1;
+							};
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+						};
+					};
+				};
+			};
+			buildConfigurationList = 2A499BBE1C42BD3E00CFE643 /* Build configuration list for PBXProject "PlugRocketHelper" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2A499BBA1C42BD3E00CFE643;
+			productRefGroup = 2A499BC41C42BD3E00CFE643 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2A499BC21C42BD3E00CFE643 /* PlugRocketHelper */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2A499BC11C42BD3E00CFE643 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A499BC91C42BD3E00CFE643 /* Assets.xcassets in Resources */,
+				2A499BCC1C42BD3E00CFE643 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2A499BBF1C42BD3E00CFE643 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A499BC71C42BD3E00CFE643 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		2A499BCA1C42BD3E00CFE643 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2A499BCB1C42BD3E00CFE643 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		2A499BCE1C42BD3E00CFE643 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		2A499BCF1C42BD3E00CFE643 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		2A499BD11C42BD3E00CFE643 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PlugRocketHelper/PlugRocketHelper.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer: Roland Leth (WJG564D97Z)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer: Roland Leth (WJG564D97Z)";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = PlugRocketHelper/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.rolandleth.PlugRocketHelper;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "53a9120a-03b1-428e-94ef-f7999be87f71";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		2A499BD21C42BD3E00CFE643 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PlugRocketHelper/PlugRocketHelper.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer: Roland Leth (WJG564D97Z)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer: Roland Leth (WJG564D97Z)";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = PlugRocketHelper/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.rolandleth.PlugRocketHelper;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "53a9120a-03b1-428e-94ef-f7999be87f71";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2A499BBE1C42BD3E00CFE643 /* Build configuration list for PBXProject "PlugRocketHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A499BCE1C42BD3E00CFE643 /* Debug */,
+				2A499BCF1C42BD3E00CFE643 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2A499BD01C42BD3E00CFE643 /* Build configuration list for PBXNativeTarget "PlugRocketHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A499BD11C42BD3E00CFE643 /* Debug */,
+				2A499BD21C42BD3E00CFE643 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2A499BBB1C42BD3E00CFE643 /* Project object */;
+}

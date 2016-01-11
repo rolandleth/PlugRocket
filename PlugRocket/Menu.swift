@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import ServiceManagement
 
 class Menu: NSMenu, NSUserNotificationCenterDelegate {
 
@@ -32,6 +33,15 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		let mi     = NSMenuItem(title: "Update now", action: "updatePlugins", keyEquivalent: "")
 		mi.target  = self
 		mi.enabled = true
+		
+		return mi
+	}()
+	
+	private lazy var startAtLoginItem: NSMenuItem = {
+		let mi     = NSMenuItem(title: "Start at login", action: "toggleStartAtLogin", keyEquivalent: "")
+		mi.target  = self
+		mi.enabled = true
+		mi.state = Utils.startAtLogin ? NSOnState : NSOffState
 		
 		return mi
 	}()
@@ -90,6 +100,23 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 	
 	// MARK: - Actions
 	
+	@objc private func toggleStartAtLogin() {
+		if Utils.startAtLogin {
+			if SMLoginItemSetEnabled("com.rolandleth.PlugRocketHelper", false) {
+				startAtLoginItem.state = NSOffState
+				Utils.startAtLogin = false
+			}
+		}
+		else {
+			if SMLoginItemSetEnabled("com.rolandleth.PlugRocketHelper", true) {
+				startAtLoginItem.state = NSOnState
+				Utils.startAtLogin = true
+			}
+		}
+		
+		update()
+	}
+	
 	@objc private func toggleDisplayTotal() {
 		Utils.displayTotalPlugins = !Utils.displayTotalPlugins
 		Utils.userDefaults.synchronize()
@@ -99,7 +126,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 	}
 	
 	@objc private func quit() {
-		NSApplication.sharedApplication().terminate(nil)
+		NSApp.terminate(nil)
 	}
 	
 	// Just for the button, because the sender gets fucked up with the completionBlock otherwise
@@ -240,6 +267,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		if Utils.totalPlugins > 0 {
 			addItem(displayTotalItem)
 		}
+		addItem(startAtLoginItem)
 		addItem(closeAfterUpdateMenuItem)
 		updateDisplayTotalItemTitle()
 		addItem(NSMenuItem.separatorItem())

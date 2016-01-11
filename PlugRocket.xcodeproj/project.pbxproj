@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2A0E68211C41581D00E9CFD0 /* xcode_uuid_script.rb in Resources */ = {isa = PBXBuildFile; fileRef = 2A0E68201C41581D00E9CFD0 /* xcode_uuid_script.rb */; };
+		2A499BDA1C42BDA600CFE643 /* PlugRocketHelper.app in Copy Helper App */ = {isa = PBXBuildFile; fileRef = 2A499BD81C42BD6300CFE643 /* PlugRocketHelper.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2A5AED221C1EE367002DC817 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5AED211C1EE367002DC817 /* AppDelegate.swift */; };
 		2A5AED241C1EE367002DC817 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A5AED231C1EE367002DC817 /* Assets.xcassets */; };
 		2A5AED321C1EE367002DC817 /* PlugRocketTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5AED311C1EE367002DC817 /* PlugRocketTests.swift */; };
@@ -19,6 +20,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2A499BD71C42BD6300CFE643 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2A499BD31C42BD6300CFE643 /* PlugRocketHelper.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2A499BC31C42BD3E00CFE643;
+			remoteInfo = PlugRocketHelper;
+		};
 		2A5AED2E1C1EE367002DC817 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2A5AED161C1EE367002DC817 /* Project object */;
@@ -28,8 +36,23 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		2A499BD91C42BD8900CFE643 /* Copy Helper App */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/LoginItems;
+			dstSubfolderSpec = 1;
+			files = (
+				2A499BDA1C42BDA600CFE643 /* PlugRocketHelper.app in Copy Helper App */,
+			);
+			name = "Copy Helper App";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		2A0E68201C41581D00E9CFD0 /* xcode_uuid_script.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = xcode_uuid_script.rb; sourceTree = "<group>"; };
+		2A499BD31C42BD6300CFE643 /* PlugRocketHelper.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = PlugRocketHelper.xcodeproj; path = PlugRocketHelper/PlugRocketHelper.xcodeproj; sourceTree = "<group>"; };
 		2A5AED1E1C1EE367002DC817 /* PlugRocket.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlugRocket.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A5AED211C1EE367002DC817 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2A5AED231C1EE367002DC817 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -63,9 +86,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2A499BD41C42BD6300CFE643 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2A499BD81C42BD6300CFE643 /* PlugRocketHelper.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		2A5AED151C1EE367002DC817 = {
 			isa = PBXGroup;
 			children = (
+				2A499BD31C42BD6300CFE643 /* PlugRocketHelper.xcodeproj */,
 				2A5AED201C1EE367002DC817 /* PlugRocket */,
 				2A5AED301C1EE367002DC817 /* PlugRocketTests */,
 				2A5AED1F1C1EE367002DC817 /* Products */,
@@ -125,6 +157,7 @@
 				2A5AED1A1C1EE367002DC817 /* Sources */,
 				2A5AED1B1C1EE367002DC817 /* Frameworks */,
 				2A5AED1C1C1EE367002DC817 /* Resources */,
+				2A499BD91C42BD8900CFE643 /* Copy Helper App */,
 			);
 			buildRules = (
 			);
@@ -167,6 +200,9 @@
 						CreatedOnToolsVersion = 7.2;
 						DevelopmentTeam = 78653ABY96;
 						SystemCapabilities = {
+							com.apple.ApplicationGroups.Mac = {
+								enabled = 1;
+							};
 							com.apple.Push = {
 								enabled = 0;
 							};
@@ -192,6 +228,12 @@
 			mainGroup = 2A5AED151C1EE367002DC817;
 			productRefGroup = 2A5AED1F1C1EE367002DC817 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 2A499BD41C42BD6300CFE643 /* Products */;
+					ProjectRef = 2A499BD31C42BD6300CFE643 /* PlugRocketHelper.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				2A5AED1D1C1EE367002DC817 /* PlugRocket */,
@@ -199,6 +241,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		2A499BD81C42BD6300CFE643 /* PlugRocketHelper.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = PlugRocketHelper.app;
+			remoteRef = 2A499BD71C42BD6300CFE643 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		2A5AED1C1C1EE367002DC817 /* Resources */ = {
@@ -345,7 +397,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rolandleth.PlugRocket;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "548ed3c8-b286-4dc5-a8f2-4fc0140455bc";
+				STRIP_INSTALLED_PRODUCT = YES;
 			};
 			name = Debug;
 		};
@@ -362,7 +415,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rolandleth.PlugRocket;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "548ed3c8-b286-4dc5-a8f2-4fc0140455bc";
+				STRIP_INSTALLED_PRODUCT = YES;
 			};
 			name = Release;
 		};

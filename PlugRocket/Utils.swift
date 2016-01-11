@@ -12,6 +12,7 @@ import Cocoa
 struct Utils {
 	
 	private static let closeAfterUpdateKey = "closeAfterUpdateKey"
+	private static let startAtLoginKey = "startAtLoginKey"
 	private static let displayTotalPluginsKey = "displayTotalPlugins"
 	private static let totalPluginsKey = "totalPlugins"
 	private static let xcodeUUIDKey = "xcodeUUID"
@@ -35,6 +36,10 @@ struct Utils {
 	static var closeAfterUpdate: Bool {
 		get { return userDefaults.boolForKey(closeAfterUpdateKey) }
 		set { userDefaults.setBool(newValue, forKey: closeAfterUpdateKey) }
+	}
+	static var startAtLogin: Bool {
+		get { return userDefaults.boolForKey(startAtLoginKey) }
+		set { userDefaults.setBool(newValue, forKey: startAtLoginKey) }
 	}
 	static var displayTotalPlugins: Bool {
 		get { return totalPlugins > 0 && userDefaults.boolForKey(displayTotalPluginsKey) }
