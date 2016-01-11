@@ -97,10 +97,10 @@
 		2A5AED151C1EE367002DC817 = {
 			isa = PBXGroup;
 			children = (
-				2A499BD31C42BD6300CFE643 /* PlugRocketHelper.xcodeproj */,
 				2A5AED201C1EE367002DC817 /* PlugRocket */,
 				2A5AED301C1EE367002DC817 /* PlugRocketTests */,
 				2A5AED1F1C1EE367002DC817 /* Products */,
+				2A499BD31C42BD6300CFE643 /* PlugRocketHelper.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
