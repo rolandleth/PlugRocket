@@ -13,7 +13,6 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 
 	private var updatedPlugins = 0
 	private var uptodatePlugins = 0
-	private var totalPlugins: Int { return updatedPlugins + uptodatePlugins }
 	
 	private lazy var statusItem: NSStatusItem = {
 		let si = NSStatusBar.systemStatusBar().statusItemWithLength(25)
@@ -71,7 +70,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		
 		descriptionItem.enabled = false
 		descriptionItem.attributedTitle = Utils.disabledMenuTitleWithString(
-			"Turning this option on will enable the following behavior:\nwhen the app is launched, the plugins will update and the app\nwill automatically close. To turn off the option, keep\n⌥ (alt / option) or ⌘ (command) pressed while launching the app.",
+			"Turning this option on will enable the following behavior:\nwhen the app is launched, the plugins will be updated\nand the app will automatically close. To turn off the option, keep\n⌥ (alt / option) or ⌘ (command) pressed while launching the app.",
 			font: NSFont(name: self.font.fontName, size: self.font.pointSize - 4)!
 		)
 		
@@ -147,7 +146,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 			// if there is no data about plugins yet, or there are 0 plugins,
 			// the first time an update is done and plugins are found,
 			// auto-turn on the option, so it's obvious what it does.
-			if plugins == 0 && self.totalPlugins > 0 {
+			if plugins == 0 && Utils.totalPlugins > 0 {
 				Utils.displayTotalPlugins = true
 				Utils.userDefaults.synchronize()
 				
@@ -155,7 +154,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 				self.displayTotalItem.state = NSOnState
 			}
 			
-			if self.totalPlugins > 0 && self.displayTotalItem.menu == nil {
+			if Utils.totalPlugins > 0 && self.displayTotalItem.menu == nil {
 				self.insertItem(self.displayTotalItem, atIndex: 1)
 			}
 			
@@ -185,8 +184,8 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 						return
 			}
 			
-			plists = plists.map() { url in
-				return url.URLByAppendingPathComponent("/Contents/Info.plist")
+			plists = plists.map() {
+				return $0.URLByAppendingPathComponent("/Contents/Info.plist")
 			}
 			
 			var updatedPlugins = 0
@@ -225,14 +224,15 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		let text: String
 		
 		switch (updatedPlugins, uptodatePlugins) {
+		case (0, 0): text = "You have no plugins."
 		case (0, 1): text = "You have only one plugin, and it was already up to date."
-		case (0, _): text = "All \(uptodatePlugins) plugins were already up-to-date."
 		case (1, 0): text = "You have only one plugin, and it has been updated."
-		case (_, 0): text = "All \(updatedPlugins) plugins were updated."
 		case (1, 1): text = "1 plugin was updated, 1 plugin was already up-to-date."
+		case (0, _): text = "All \(uptodatePlugins) plugins were already up-to-date."
 		case (1, _): text = "1 plugin was updated, \(uptodatePlugins) plugins were already up-to-date."
+		case (_, 0): text = "All \(updatedPlugins) plugins were updated."
 		case (_, 1): text = "\(updatedPlugins) plugins were updated, 1 plugin was already up-to-date."
-		default: text = "\(updatedPlugins) plugins were updated, \(uptodatePlugins) plugins were already up-to-date."
+		case (_, _): text = "\(updatedPlugins) plugins were updated, \(uptodatePlugins) plugins were already up-to-date."
 		}
 		
 		Utils.postNotificationWithText(text, success: true)
