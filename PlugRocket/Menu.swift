@@ -71,7 +71,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		
 		descriptionItem.enabled = false
 		descriptionItem.attributedTitle = Utils.disabledMenuTitleWithString(
-			"Turning this option on will enable the following behavior:\nwhen the app is launched, the plugins will update and the app\nwill automatically close. To turn off the option,\nkeep ⌥ (alt / option) pressed while launching the app.",
+			"Turning this option on will enable the following behavior:\nwhen the app is launched, the plugins will update and the app\nwill automatically close. To turn off the option, keep\n⌥ (alt / option) or ⌘ (command) pressed while launching the app.",
 			font: NSFont(name: self.font.fontName, size: self.font.pointSize - 4)!
 		)
 		
@@ -273,7 +273,8 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		quitItem.target = self
 		addItem(quitItem)
 		
-		if Utils.closeAfterUpdate && NSEvent.modifierFlags() != .AlternateKeyMask {
+		let modifierPressed = NSEvent.modifierFlags() == .AlternateKeyMask || NSEvent.modifierFlags() == .CommandKeyMask
+		if Utils.closeAfterUpdate && !modifierPressed {
 			updatePlugins() {
 				self.quit()
 			}
