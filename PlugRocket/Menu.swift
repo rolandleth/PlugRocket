@@ -129,7 +129,12 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		updatePlugins({})
 	}
 	
-	private func updatePlugins(completion: () -> Void = {}) {
+	private func updatePlugins(completion: () -> Void) {
+		guard Utils.disclaimerShown else {
+			Utils.showDisclaimer { self.updatePlugins() }
+			return
+		}
+		
 		updateItem.enabled         = false
 		updateItem.attributedTitle = Utils.disabledMenuTitleWithString("Updating...", font: self.font)
 		update()

@@ -11,6 +11,7 @@ import Cocoa
 
 struct Utils {
 	
+	private static let disclaimerShownKey = "disclaimerShownKey"
 	private static let closeAfterUpdateKey = "closeAfterUpdateKey"
 	private static let startAtLoginKey = "startAtLoginKey"
 	private static let displayTotalPluginsKey = "displayTotalPlugins"
@@ -33,6 +34,10 @@ struct Utils {
 	
 	// MARK: - UserDefaults
 	
+	static var disclaimerShown: Bool {
+		get { return userDefaults.boolForKey(disclaimerShownKey) }
+		set { userDefaults.setBool(newValue, forKey: disclaimerShownKey) }
+	}
 	static var closeAfterUpdate: Bool {
 		get { return userDefaults.boolForKey(closeAfterUpdateKey) }
 		set { userDefaults.setBool(newValue, forKey: closeAfterUpdateKey) }
@@ -57,6 +62,21 @@ struct Utils {
 	static var userDefaults: NSUserDefaults { return NSUserDefaults.standardUserDefaults() }
 	static var darkMode: Bool { return userDefaults.stringForKey("AppleInterfaceStyle") == "Dark" }
 	
+	
+	static func showDisclaimer(completion: () -> Void = {}) {
+		let alert = NSAlert()
+		alert.addButtonWithTitle("OK")
+		alert.addButtonWithTitle("Cancel")
+		alert.alertStyle = .InformationalAlertStyle
+		alert.messageText = "Disclaimer, please read!"
+		alert.informativeText = "You are about to mark all your plug-ins as being compatible with Xcode, by adding its UUID to the plug-ins' plist files. This only means that Xcode will try to load them, but their functionality remains the same.\n\nIf any of the plug-ins are not actually compatible with the new version, Xcode might crash. In case this happens, you can use the revert feature, and you should wait for an official update from the author.\n\nThis message will only be shown once."
+		
+		guard alert.runModal() == NSAlertFirstButtonReturn else { return }
+		
+		Utils.disclaimerShown = true
+		Utils.userDefaults.synchronize()
+		completion()
+	}
 	
 	// MARK: - Helpers
 	
