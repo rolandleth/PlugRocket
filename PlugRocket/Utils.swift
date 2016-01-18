@@ -11,6 +11,7 @@ import Cocoa
 
 struct Utils {
 	
+	private static let updatedPluginsKey = "updatedPluginsKey"
 	private static let disclaimerShownKey = "disclaimerShownKey"
 	private static let closeAfterUpdateKey = "closeAfterUpdateKey"
 	private static let startAtLoginKey = "startAtLoginKey"
@@ -57,6 +58,10 @@ struct Utils {
 	static var xcodeUUID: String {
 		get { return userDefaults.stringForKey(xcodeUUIDKey) ?? "" }
 		set { userDefaults.setObject(newValue, forKey: xcodeUUIDKey) }
+	}
+	static var updatedPlugins: [String] {
+		get { return userDefaults.arrayForKey(updatedPluginsKey) as? [String] ?? [String]() }
+		set { userDefaults.setObject(newValue, forKey: updatedPluginsKey) }
 	}
 	
 	static var userDefaults: NSUserDefaults { return NSUserDefaults.standardUserDefaults() }

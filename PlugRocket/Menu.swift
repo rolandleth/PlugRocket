@@ -77,6 +77,14 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		return m
 	}()
 	
+	private lazy var revertItem: NSMenuItem = {
+		let mi     = NSMenuItem(title: "Revert changes from last update", action: "revertPlugins", keyEquivalent: "")
+		mi.target  = self
+		mi.enabled = true
+		
+		return mi
+	}()
+	
 	private lazy var closeAfterUpdateMenuItem: NSMenuItem = {
 		let mi     = NSMenuItem(title: "Close after updating", action: nil, keyEquivalent: "")
 		mi.enabled = true
@@ -124,6 +132,26 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		NSApp.terminate(nil)
 	}
 	
+	@objc private func revertPlugins() {
+		Sandbox.askForSandboxPermissionFor(.Plugins, success: {
+			let result = Sandbox.updatePlugins(revert: true)
+			
+			if result.0 > 0 && result.1 > 0 {
+				if result.0 == 1 {
+					Utils.postNotificationWithText("\(result.0) has been reverted.", success: true)
+				}
+				else {
+					Utils.postNotificationWithText("\(result.0) plug-ins have been reverted.", success: true)
+				}
+			}
+			else if result.success {
+				Utils.postNotificationWithText("No plug-ins were updated with PlugRocket.", success: true)
+			}
+		}) {
+			// This will never happen. 
+		}
+	}
+	
 	// Just for the button, because the sender gets fucked up with the completionBlock otherwise
 	@objc private func updatePlugins() {
 		updatePlugins({})
@@ -139,8 +167,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		updateItem.attributedTitle = Utils.disabledMenuTitleWithString("Updating...", font: self.font)
 		update()
 		
-		let plugins = Utils.totalPlugins
-		let genericErrorMessage = "Something went wrong."
+		let totalPlugins = Utils.totalPlugins
 		
 		let finishUpdate = {
 			self.updateItem.enabled         = true
@@ -151,7 +178,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 			// if there is no data about plugins yet, or there are 0 plugins,
 			// the first time an update is done and plugins are found,
 			// auto-turn on the option, so it's obvious what it does.
-			if plugins == 0 && Utils.totalPlugins > 0 {
+			if totalPlugins == 0 && Utils.totalPlugins > 0 {
 				Utils.displayTotalPlugins = true
 				Utils.userDefaults.synchronize()
 				
@@ -176,42 +203,11 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 				Utils.xcodeUUID = xcodeUUID.stringByReplacingOccurrencesOfString("\n",
 					withString: ""
 				)
+				Utils.updatedPlugins = [String]()
 				Utils.userDefaults.synchronize()
 			}
 			
-			let manager = NSFileManager.defaultManager()
-			guard
-				let pluginURL = NSURL(string: Utils.pluginsURL),
-				var plists = try? manager.contentsOfDirectoryAtURL(pluginURL,
-					includingPropertiesForKeys: [],
-					options: .SkipsHiddenFiles) else {
-						Utils.postNotificationWithText(genericErrorMessage)
-						return
-			}
-			
-			plists = plists.map() {
-				return $0.URLByAppendingPathComponent("/Contents/Info.plist")
-			}
-			
-			var updatedPlugins = 0
-			var uptodatePlugins = 0
-			for plist in plists {
-				guard
-					let plistDictionary = NSMutableDictionary(contentsOfURL: plist),
-					var ids = plistDictionary["DVTPlugInCompatibilityUUIDs"] as? [String] else {
-						Utils.postNotificationWithText(genericErrorMessage)
-						return
-				}
-				
-				guard !ids.contains(Utils.xcodeUUID) else { uptodatePlugins++; continue }
-				
-				updatedPlugins++
-				ids.append(Utils.xcodeUUID)
-				plistDictionary["DVTPlugInCompatibilityUUIDs"] = ids
-				plistDictionary.writeToURL(plist, atomically: true)
-			}
-			
-			self.postUpdateNotification([updatedPlugins, uptodatePlugins])
+			self.postUpdateNotification(Sandbox.updatePlugins())
 			finishUpdate()
 			completion()
 			
@@ -222,9 +218,12 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		}
 	}
 	
-	private func postUpdateNotification(values: [Int]) {
-		updatedPlugins = values.first!
-		uptodatePlugins = values.last!
+	private func postUpdateNotification(result: (Int, Int, success: Bool)) {
+		// If success is false, we already posted a notification.
+		guard result.success else { return }
+		
+		updatedPlugins = result.0
+		uptodatePlugins = result.1
 		
 		let text: String
 		
@@ -272,6 +271,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		addItem(startAtLoginItem)
 		addItem(closeAfterUpdateMenuItem)
 		addItem(NSMenuItem.separatorItem())
+		addItem(revertItem)
 		
 		let quitItem = NSMenuItem(title: "Quit", action: "quit", keyEquivalent: "")
 		quitItem.enabled = true

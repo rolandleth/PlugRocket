@@ -16,6 +16,8 @@ struct Sandbox {
 		case Xcode
 	}
 	
+	static let genericErrorMessage = "Something went wrong."
+	
 	static let openPanel: NSOpenPanel = {
 		let op = NSOpenPanel()
 		
@@ -52,6 +54,67 @@ struct Sandbox {
 		
 		return resultString
 	}
+	
+	
+	// MARK: - File handling
+	
+	static func pluginPlists() -> ([NSURL], success: Bool) {
+		let manager = NSFileManager.defaultManager()
+		guard
+			let pluginURL = NSURL(string: Utils.pluginsURL),
+			let plists = try? manager.contentsOfDirectoryAtURL(pluginURL,
+				includingPropertiesForKeys: [],
+				options: .SkipsHiddenFiles) else {
+					Utils.postNotificationWithText(genericErrorMessage)
+					return ([NSURL](), success: false)
+		}
+		
+		return (plists.map() {
+			return $0.URLByAppendingPathComponent("/Contents/Info.plist")
+		}, success: true)
+	}
+	
+	static func updatePlugins(revert reverting: Bool = false) -> (Int, Int, success: Bool) {
+		let result = pluginPlists()
+		
+		guard result.success else {
+			Utils.postNotificationWithText(genericErrorMessage)
+			return (0, 0, success: false)
+		}
+		
+		var updatedPlugins = 0
+		var uptodatePlugins = 0
+		
+		for plist in result.0.reverse() {
+			guard
+				let plistDictionary = NSMutableDictionary(contentsOfURL: plist),
+				var ids = plistDictionary["DVTPlugInCompatibilityUUIDs"] as? [String] else {
+					continue
+			}
+			
+			if let idx = ids.indexOf(Utils.xcodeUUID) {
+				uptodatePlugins++
+
+				if reverting && !(Utils.updatedPlugins.filter { plist.absoluteString == $0 }.isEmpty) {
+					updatedPlugins++
+					ids.removeAtIndex(idx)
+				}
+			}
+			else if !reverting {
+				updatedPlugins++
+				Utils.updatedPlugins.append(plist.absoluteString)
+				ids.append(Utils.xcodeUUID)
+			}
+			
+			plistDictionary["DVTPlugInCompatibilityUUIDs"] = ids
+			plistDictionary.writeToURL(plist, atomically: true)
+		}
+		
+		return (updatedPlugins, uptodatePlugins, success: true)
+	}
+
+	
+	// MARK: - Bookmarks
 	
 	// I was afraid the app would need permission to read from Xcode's contents.
 	// Apparently not, but I just left the logic here, for an unexpected future.
