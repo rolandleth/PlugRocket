@@ -68,6 +68,8 @@ struct Utils {
 	static var darkMode: Bool { return userDefaults.stringForKey("AppleInterfaceStyle") == "Dark" }
 	
 	
+	// MARK: - Helpers
+	
 	static func showDisclaimer(completion: () -> Void = {}) {
 		let alert = NSAlert()
 		alert.addButtonWithTitle("OK")
@@ -82,8 +84,6 @@ struct Utils {
 		Utils.userDefaults.synchronize()
 		completion()
 	}
-	
-	// MARK: - Helpers
 	
 	static func disabledMenuTitleWithString(string: String, font: NSFont) -> NSAttributedString {
 		let attributedString = NSAttributedString(

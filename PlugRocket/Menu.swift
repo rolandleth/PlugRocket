@@ -14,6 +14,18 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 	private var updatedPlugins = 0
 	private var uptodatePlugins = 0
 	
+	private lazy var revertAlert: NSAlert = {
+		let a = NSAlert()
+		a.addButtonWithTitle("Select")
+		a.addButtonWithTitle("All")
+		a.addButtonWithTitle("Cancel")
+		a.alertStyle = .InformationalAlertStyle
+		a.messageText = "You are about to revert last changes"
+		a.informativeText = "You can select some plug-ins for which to revert the changes, or revert them all.\n\nIn case you do not revert them all, the list up updated plug-ins is kept until a new version of Xcode is installed, so you can experiment with reverting and updating without any risk."
+		
+		return a
+	}()
+	
 	private lazy var statusItem: NSStatusItem = {
 		let si = NSStatusBar.systemStatusBar().statusItemWithLength(25)
 		
@@ -101,7 +113,15 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 	}
 	
 	
-	// MARK: - Actions
+	// MARK: - Toggles
+	
+	@objc private func activateCloseAfterUpdateMode() {
+		Utils.closeAfterUpdate = true
+		
+		updatePlugins() {
+			self.quit()
+		}
+	}
 	
 	@objc private func toggleStartAtLogin() {
 		if Utils.startAtLogin {
@@ -132,16 +152,11 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		NSApp.terminate(nil)
 	}
 	
+	
+	// MARK: - Reverting
+	
 	private func showRevertAlert(selectPressed selectPressed: () -> Void, allPressed: () -> Void) {
-		let alert = NSAlert()
-		alert.addButtonWithTitle("Select")
-		alert.addButtonWithTitle("All")
-		alert.addButtonWithTitle("Cancel")
-		alert.alertStyle = .InformationalAlertStyle
-		alert.messageText = "You are about to revert last changes"
-		alert.informativeText = "You can select some plug-ins for which to revert the changes, or revert them all.\n\nIn case you do not revert them all, the list up updated plug-ins is kept until a new version of Xcode is installed, so you can experiment with reverting and updating without any risk."
-		
-		switch alert.runModal() {
+		switch revertAlert.runModal() {
 		case NSAlertFirstButtonReturn: selectPressed()
 		case NSAlertSecondButtonReturn: allPressed()
 		default: return
@@ -184,6 +199,9 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 				revert(nil)
 		})
 	}
+	
+	
+	// MARK: - Updating
 	
 	// Just for the button, because the sender gets fucked up with the completionBlock otherwise
 	@objc private func updatePlugins() {
@@ -276,14 +294,6 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		Utils.postNotificationWithText(text, success: true)
 		Utils.totalPlugins = updatedPlugins + uptodatePlugins
 		Utils.userDefaults.synchronize()
-	}
-
-	@objc private func activateCloseAfterUpdateMode() {
-		Utils.closeAfterUpdate = true
-		
-		updatePlugins() {
-			self.quit()
-		}
 	}
 	
 	
