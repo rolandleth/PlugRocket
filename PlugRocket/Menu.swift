@@ -132,24 +132,57 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		NSApp.terminate(nil)
 	}
 	
-	@objc private func revertPlugins() {
-		Sandbox.askForSandboxPermissionFor(.Plugins, success: {
-			let result = Sandbox.updatePlugins(revert: true)
-			
-			if result.0 > 0 && result.1 > 0 {
-				if result.0 == 1 {
-					Utils.postNotificationWithText("\(result.0) has been reverted.", success: true)
-				}
-				else {
-					Utils.postNotificationWithText("\(result.0) plug-ins have been reverted.", success: true)
-				}
-			}
-			else if result.success {
-				Utils.postNotificationWithText("No plug-ins were updated with PlugRocket.", success: true)
-			}
-		}) {
-			// This will never happen. 
+	private func showRevertAlert(selectPressed selectPressed: () -> Void, allPressed: () -> Void) {
+		let alert = NSAlert()
+		alert.addButtonWithTitle("Select")
+		alert.addButtonWithTitle("All")
+		alert.addButtonWithTitle("Cancel")
+		alert.alertStyle = .InformationalAlertStyle
+		alert.messageText = "You are about to revert last changes"
+		alert.informativeText = "You can select some plug-ins for which to revert the changes, or revert them all.\n\nIn case you do not revert them all, the list up updated plug-ins is kept until a new version of Xcode is installed, so you can experiment with reverting and updating without any risk."
+		
+		switch alert.runModal() {
+		case NSAlertFirstButtonReturn: selectPressed()
+		case NSAlertSecondButtonReturn: allPressed()
+		default: return
 		}
+	}
+	
+	@objc private func revertPlugins() {
+		let revert: ([NSURL]?) -> Void = { plugins in
+			Sandbox.askForSandboxPermissionFor(.Plugins, success: {
+				let result = Sandbox.updatePlugins(plugins?.map() {
+					return $0.URLByAppendingPathComponent("Contents/Info.plist")
+				}, revert: true)
+				
+				if result.0 > 0 && result.1 > 0 {
+					if result.0 == 1 {
+						Utils.postNotificationWithText("\(result.0) plug-in has been reverted.", success: true)
+					}
+					else {
+						Utils.postNotificationWithText("\(result.0) plug-ins have been reverted.", success: true)
+					}
+				}
+				else if result.success {
+					Utils.postNotificationWithText("No plug-ins were updated with PlugRocket.", success: true)
+				}
+			}) {
+				// This will never happen.
+			}
+		}
+		
+		showRevertAlert(
+			selectPressed: {
+				NSApp.activateIgnoringOtherApps(true)
+				Sandbox.openPanel.allowsMultipleSelection = true
+				Sandbox.openPanel.canChooseFiles          = true
+				
+				guard Sandbox.openPanel.runModal() == NSFileHandlingPanelOKButton else { return }
+				
+				revert(Sandbox.openPanel.URLs)
+			}, allPressed: {
+				revert(nil)
+		})
 	}
 	
 	// Just for the button, because the sender gets fucked up with the completionBlock otherwise
@@ -194,15 +227,16 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		}
 		
 		Sandbox.askForSandboxPermissionFor(.Plugins, success: {
-			guard let xcodeUUID = Sandbox.runScriptFor(.Xcode) else {
-				Utils.postNotificationWithText("Could not read Xcode's UUID.")
-				return // This should never happen
+			guard
+				let xcodeUUID = Sandbox.runScriptFor(.Xcode)?
+					.stringByReplacingOccurrencesOfString("\n", withString: "")
+				where !xcodeUUID.isEmpty else {
+					Utils.postNotificationWithText("Could not read Xcode's UUID.")
+					return // This should never happen
 			}
 			
 			if Utils.xcodeUUID != xcodeUUID {
-				Utils.xcodeUUID = xcodeUUID.stringByReplacingOccurrencesOfString("\n",
-					withString: ""
-				)
+				Utils.xcodeUUID = xcodeUUID
 				Utils.updatedPlugins = [String]()
 				Utils.userDefaults.synchronize()
 			}

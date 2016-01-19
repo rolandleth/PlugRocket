@@ -23,9 +23,7 @@ struct Sandbox {
 		
 		op.message = "In order to update your plug-ins, we require permission to access their folder, located at\n\(Utils.cleanedPluginsURL)"
 		op.canCreateDirectories    = false
-		op.canChooseFiles          = false
-		op.canChooseDirectories    = true
-		op.allowsMultipleSelection = false
+		op.canChooseDirectories    = false
 		op.showsHiddenFiles        = false
 		op.prompt                  = "Allow"
 		op.title                   = "Allow access"
@@ -70,12 +68,13 @@ struct Sandbox {
 		}
 		
 		return (plists.map() {
-			return $0.URLByAppendingPathComponent("/Contents/Info.plist")
+			return $0.URLByAppendingPathComponent("Contents/Info.plist")
 		}, success: true)
 	}
 	
-	static func updatePlugins(revert reverting: Bool = false) -> (Int, Int, success: Bool) {
+	static func updatePlugins(plugins: [NSURL]? = nil, revert reverting: Bool = false) -> (Int, Int, success: Bool) {
 		let result = pluginPlists()
+		let plists = plugins ?? result.0
 		
 		guard result.success else {
 			Utils.postNotificationWithText(genericErrorMessage)
@@ -85,28 +84,31 @@ struct Sandbox {
 		var updatedPlugins = 0
 		var uptodatePlugins = 0
 		
-		for plist in result.0.reverse() {
+		for plist in plists.reverse() {
 			guard
 				let plistDictionary = NSMutableDictionary(contentsOfURL: plist),
-				var ids = plistDictionary["DVTPlugInCompatibilityUUIDs"] as? [String] else {
+				var plistUUIDs = plistDictionary["DVTPlugInCompatibilityUUIDs"] as? [String] else {
 					continue
 			}
 			
-			if let idx = ids.indexOf(Utils.xcodeUUID) {
+			if let UUIDIndex = plistUUIDs.indexOf(Utils.xcodeUUID) {
 				uptodatePlugins++
 
-				if reverting && !(Utils.updatedPlugins.filter { plist.absoluteString == $0 }.isEmpty) {
+				if reverting, let URLIndex = Utils.updatedPlugins.indexOf(plist.absoluteString) {
 					updatedPlugins++
-					ids.removeAtIndex(idx)
+					
+					Utils.updatedPlugins.removeAtIndex(URLIndex)
+					plistUUIDs.removeAtIndex(UUIDIndex)
 				}
 			}
 			else if !reverting {
 				updatedPlugins++
+				
 				Utils.updatedPlugins.append(plist.absoluteString)
-				ids.append(Utils.xcodeUUID)
+				plistUUIDs.append(Utils.xcodeUUID)
 			}
 			
-			plistDictionary["DVTPlugInCompatibilityUUIDs"] = ids
+			plistDictionary["DVTPlugInCompatibilityUUIDs"] = plistUUIDs
 			plistDictionary.writeToURL(plist, atomically: true)
 		}
 		
@@ -152,6 +154,8 @@ struct Sandbox {
 	
 	private static func presentOpenPanelFor(location: Location, success: () -> Void, failure: () -> Void) {
 		NSApplication.sharedApplication().activateIgnoringOtherApps(true)
+		openPanel.allowsMultipleSelection = false
+		openPanel.canChooseFiles          = false
 		let tappedButton = openPanel.runModal()
 		
 		guard tappedButton == NSFileHandlingPanelOKButton && openPanel.URL?.absoluteString == Utils.pluginsURL else {
