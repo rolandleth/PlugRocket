@@ -21,7 +21,6 @@ struct Sandbox {
 	static let openPanel: NSOpenPanel = {
 		let op = NSOpenPanel()
 		
-		op.message = "In order to update your plug-ins, we require permission to access their folder, located at\n\(Utils.cleanedPluginsURL)"
 		op.canCreateDirectories    = false
 		op.canChooseDirectories    = false
 		op.showsHiddenFiles        = false
@@ -153,9 +152,11 @@ struct Sandbox {
 	}
 	
 	private static func presentOpenPanelFor(location: Location, success: () -> Void, failure: () -> Void) {
-		NSApplication.sharedApplication().activateIgnoringOtherApps(true)
+		NSApp.activateIgnoringOtherApps(true)
 		openPanel.allowsMultipleSelection = false
 		openPanel.canChooseFiles          = false
+		openPanel.message                 = "In order to update your plug-ins, we require permission to access their folder, located at\n\(Utils.cleanedPluginsURL)"
+		
 		let tappedButton = openPanel.runModal()
 		
 		guard tappedButton == NSFileHandlingPanelOKButton && openPanel.URL?.absoluteString == Utils.pluginsURL else {

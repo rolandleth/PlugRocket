@@ -14,18 +14,6 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 	private var updatedPlugins = 0
 	private var uptodatePlugins = 0
 	
-	private lazy var revertAlert: NSAlert = {
-		let a = NSAlert()
-		a.addButtonWithTitle("Select")
-		a.addButtonWithTitle("All")
-		a.addButtonWithTitle("Cancel")
-		a.alertStyle = .InformationalAlertStyle
-		a.messageText = "You are about to revert last changes"
-		a.informativeText = "You can select some plug-ins for which to revert the changes, or revert them all.\n\nIn case you do not revert them all, the list up updated plug-ins is kept until a new version of Xcode is installed, so you can experiment with reverting and updating without any risk."
-		
-		return a
-	}()
-	
 	private lazy var statusItem: NSStatusItem = {
 		let si = NSStatusBar.systemStatusBar().statusItemWithLength(25)
 		
@@ -66,6 +54,39 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		return mi
 	}()
 	
+	private lazy var revertItem: NSMenuItem = {
+		let mi     = NSMenuItem(title: "Revert changes from last update", action: nil, keyEquivalent: "")
+		mi.enabled = true
+		mi.submenu = self.revertMenu
+		
+		return mi
+	}()
+	
+	private lazy var revertMenu: NSMenu = {
+		let m = NSMenu(title: "Revert changes from last update")
+		m.autoenablesItems = false
+		
+		let revertAllItem     = NSMenuItem(title: "All", action: "revertAllPlugins", keyEquivalent: "")
+		m.addItem(revertAllItem)
+		revertAllItem.target  = self
+		revertAllItem.enabled = true
+		
+		let revertSomeItem     = NSMenuItem(title: "Select...", action: "revertSomePlugins", keyEquivalent: "")
+		m.addItem(revertSomeItem)
+		revertSomeItem.target  = self
+		revertSomeItem.enabled = true
+		
+		return m
+	}()
+	
+	private lazy var closeAfterUpdateItem: NSMenuItem = {
+		let mi     = NSMenuItem(title: "Close after updating", action: nil, keyEquivalent: "")
+		mi.enabled = true
+		mi.submenu = self.closeAfterUpdateMenu
+		
+		return mi
+	}()
+	
 	private lazy var closeAfterUpdateMenu: NSMenu = {
 		let m = NSMenu(title: "")
 		m.autoenablesItems = false
@@ -87,22 +108,6 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		)
 		
 		return m
-	}()
-	
-	private lazy var revertItem: NSMenuItem = {
-		let mi     = NSMenuItem(title: "Revert changes from last update", action: "revertPlugins", keyEquivalent: "")
-		mi.target  = self
-		mi.enabled = true
-		
-		return mi
-	}()
-	
-	private lazy var closeAfterUpdateMenuItem: NSMenuItem = {
-		let mi     = NSMenuItem(title: "Close after updating", action: nil, keyEquivalent: "")
-		mi.enabled = true
-		mi.submenu = self.closeAfterUpdateMenu
-		
-		return mi
 	}()
 	
 	
@@ -155,51 +160,42 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 	
 	// MARK: - Reverting
 	
-	private func showRevertAlert(selectPressed selectPressed: () -> Void, allPressed: () -> Void) {
-		switch revertAlert.runModal() {
-		case NSAlertFirstButtonReturn: selectPressed()
-		case NSAlertSecondButtonReturn: allPressed()
-		default: return
-		}
-	}
-	
-	@objc private func revertPlugins() {
-		let revert: ([NSURL]?) -> Void = { plugins in
-			Sandbox.askForSandboxPermissionFor(.Plugins, success: {
-				let result = Sandbox.updatePlugins(plugins?.map() {
-					return $0.URLByAppendingPathComponent("Contents/Info.plist")
+	@objc private func revertPlugins(plugins: [NSURL]?) {
+		Sandbox.askForSandboxPermissionFor(.Plugins, success: {
+			let result = Sandbox.updatePlugins(plugins?.map() {
+				return $0.URLByAppendingPathComponent("Contents/Info.plist")
 				}, revert: true)
-				
-				if result.0 > 0 && result.1 > 0 {
-					if result.0 == 1 {
-						Utils.postNotificationWithText("\(result.0) plug-in has been reverted.", success: true)
-					}
-					else {
-						Utils.postNotificationWithText("\(result.0) plug-ins have been reverted.", success: true)
-					}
+			
+			if result.0 > 0 && result.1 > 0 {
+				if result.0 == 1 {
+					Utils.postNotificationWithText("\(result.0) plug-in has been reverted.", success: true)
 				}
-				else if result.success {
-					Utils.postNotificationWithText("No plug-ins were updated with PlugRocket.", success: true)
+				else {
+					Utils.postNotificationWithText("\(result.0) plug-ins have been reverted.", success: true)
 				}
+			}
+			else if result.success {
+				Utils.postNotificationWithText("No plug-ins were updated with PlugRocket.", success: true)
+			}
 			}) {
 				// This will never happen.
-			}
 		}
-		
-		showRevertAlert(
-			selectPressed: {
-				NSApp.activateIgnoringOtherApps(true)
-				Sandbox.openPanel.allowsMultipleSelection = true
-				Sandbox.openPanel.canChooseFiles          = true
-				
-				guard Sandbox.openPanel.runModal() == NSFileHandlingPanelOKButton else { return }
-				
-				revert(Sandbox.openPanel.URLs)
-			}, allPressed: {
-				revert(nil)
-		})
 	}
 	
+	@objc private func revertAllPlugins() {
+		revertPlugins(nil)
+	}
+	
+	@objc private func revertSomePlugins() {
+		NSApp.activateIgnoringOtherApps(true)
+		Sandbox.openPanel.allowsMultipleSelection = true
+		Sandbox.openPanel.canChooseFiles          = true
+		Sandbox.openPanel.message                 = "Select plug-ins to revert"
+		
+		guard Sandbox.openPanel.runModal() == NSFileHandlingPanelOKButton else { return }
+		
+		revertPlugins(Sandbox.openPanel.URLs)
+	}
 	
 	// MARK: - Updating
 	
@@ -313,7 +309,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 			addItem(displayTotalItem)
 		}
 		addItem(startAtLoginItem)
-		addItem(closeAfterUpdateMenuItem)
+		addItem(closeAfterUpdateItem)
 		addItem(NSMenuItem.separatorItem())
 		addItem(revertItem)
 		
