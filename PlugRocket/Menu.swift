@@ -103,7 +103,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		
 		descriptionItem.enabled = false
 		descriptionItem.attributedTitle = Utils.disabledMenuTitleWithString(
-			"Turning this option on will enable the following behavior:\nwhen the app is launched, the plugins will be updated\nand the app will automatically close. To turn off the option, keep\n⌥ (alt / option) or ⌘ (command) pressed while launching the app.",
+			"Turning this option on will close the app and enable the following behavior:\nwhen the app is launched, the plugins will be updated and\nthe app will automatically close. To turn off the option, keep\n⌥ (alt / option) or ⌘ (command) pressed while launching the app.",
 			font: NSFont(name: self.font.fontName, size: self.font.pointSize - 4)!
 		)
 		
@@ -161,24 +161,21 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 	// MARK: - Reverting
 	
 	@objc private func revertPlugins(plugins: [NSURL]?) {
-		Sandbox.askForSandboxPermissionFor(.Plugins, success: {
-			let result = Sandbox.updatePlugins(plugins?.map() {
-				return $0.URLByAppendingPathComponent("Contents/Info.plist")
-				}, revert: true)
-			
-			if result.0 > 0 && result.1 > 0 {
-				if result.0 == 1 {
-					Utils.postNotificationWithText("\(result.0) plug-in has been reverted.", success: true)
-				}
-				else {
-					Utils.postNotificationWithText("\(result.0) plug-ins have been reverted.", success: true)
-				}
+//		Sandbox.askForSandboxPermissionFor(.Plugins, success: {
+		let result = Sandbox.updatePlugins(plugins?.map() {
+			return $0.URLByAppendingPathComponent("Contents/Info.plist")
+			}, revert: true)
+		
+		if result.0 > 0 && result.1 > 0 {
+			if result.0 == 1 {
+				Utils.postNotificationWithText("\(result.0) plug-in has been reverted.", success: true)
 			}
-			else if result.success {
-				Utils.postNotificationWithText("No plug-ins were updated with PlugRocket.", success: true)
+			else {
+				Utils.postNotificationWithText("\(result.0) plug-ins have been reverted.", success: true)
 			}
-			}) {
-				// This will never happen.
+		}
+		else if result.success {
+			Utils.postNotificationWithText("No plug-ins were updated with PlugRocket.", success: true)
 		}
 	}
 	
@@ -196,6 +193,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		
 		revertPlugins(Sandbox.openPanel.URLs)
 	}
+	
 	
 	// MARK: - Updating
 	
@@ -240,30 +238,26 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 			self.update()
 		}
 		
-		Sandbox.askForSandboxPermissionFor(.Plugins, success: {
-			guard
-				let xcodeUUID = Sandbox.runScriptFor(.Xcode)?
-					.stringByReplacingOccurrencesOfString("\n", withString: "")
-				where !xcodeUUID.isEmpty else {
-					Utils.postNotificationWithText("Could not read Xcode's UUID.")
-					return // This should never happen
-			}
-			
-			if Utils.xcodeUUID != xcodeUUID {
-				Utils.xcodeUUID = xcodeUUID
-				Utils.updatedPlugins = [String]()
-				Utils.userDefaults.synchronize()
-			}
-			
-			self.postUpdateNotification(Sandbox.updatePlugins())
-			finishUpdate()
-			completion()
-			
-			return
-		}) {
-			finishUpdate()
-			Utils.postNotificationWithText("You need to grant permission to the plug-ins folder.")
+//		Sandbox.askForSandboxPermissionFor(.Plugins, success: {
+		guard
+			let xcodeUUID = Sandbox.runScriptFor(.Xcode)?
+				.stringByReplacingOccurrencesOfString("\n", withString: "")
+			where !xcodeUUID.isEmpty else {
+				Utils.postNotificationWithText("Could not read Xcode's UUID.")
+				return // This should never happen
 		}
+		
+		if Utils.xcodeUUID != xcodeUUID {
+			Utils.xcodeUUID = xcodeUUID
+			Utils.updatedPlugins = [String]()
+			Utils.userDefaults.synchronize()
+		}
+		
+		self.postUpdateNotification(Sandbox.updatePlugins())
+		finishUpdate()
+		completion()
+		
+		return
 	}
 	
 	private func postUpdateNotification(result: (Int, Int, success: Bool)) {
@@ -305,13 +299,14 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		autoenablesItems = false
 		
 		addItem(updateItem)
+		addItem(NSMenuItem.separatorItem())
 		if Utils.totalPlugins > 0 {
 			addItem(displayTotalItem)
 		}
 		addItem(startAtLoginItem)
-		addItem(closeAfterUpdateItem)
 		addItem(NSMenuItem.separatorItem())
 		addItem(revertItem)
+		addItem(closeAfterUpdateItem)
 		
 		let quitItem = NSMenuItem(title: "Quit", action: "quit", keyEquivalent: "")
 		quitItem.enabled = true

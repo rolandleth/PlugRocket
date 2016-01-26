@@ -242,14 +242,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = PlugRocketHelper/PlugRocketHelper.entitlements;
-				CODE_SIGN_IDENTITY = "Mac Developer: Roland Leth (WJG564D97Z)";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer: Roland Leth (WJG564D97Z)";
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = PlugRocketHelper/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rolandleth.PlugRocketHelper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "53a9120a-03b1-428e-94ef-f7999be87f71";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -259,14 +259,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = PlugRocketHelper/PlugRocketHelper.entitlements;
-				CODE_SIGN_IDENTITY = "Mac Developer: Roland Leth (WJG564D97Z)";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer: Roland Leth (WJG564D97Z)";
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = PlugRocketHelper/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rolandleth.PlugRocketHelper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "53a9120a-03b1-428e-94ef-f7999be87f71";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;

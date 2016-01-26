@@ -114,7 +114,7 @@ struct Sandbox {
 		return (updatedPlugins, uptodatePlugins, success: true)
 	}
 
-	
+/*
 	// MARK: - Bookmarks
 	
 	// I was afraid the app would need permission to read from Xcode's contents.
@@ -182,4 +182,5 @@ struct Sandbox {
 		Utils.userDefaults.setObject(bookmarkData, forKey: Utils.pluginsURLBookmarkKey)
 		Utils.userDefaults.synchronize()
 	}
+*/
 }
