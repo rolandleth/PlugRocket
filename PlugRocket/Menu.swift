@@ -45,6 +45,15 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		return mi
 	}()
 	
+	private lazy var updateXcodeBetaItem: NSMenuItem = {
+		let mi     = NSMenuItem(title: "Also update Xcode-beta", action: "toggleUpdateXcodeBeta", keyEquivalent: "")
+		mi.target  = self
+		mi.enabled = true
+		mi.state = Utils.updateXcodeBeta ? NSOnState : NSOffState
+		
+		return mi
+	}()
+	
 	private lazy var displayTotalItem: NSMenuItem = {
 		let mi     = NSMenuItem(title: "Show total plugins", action: "toggleDisplayTotal", keyEquivalent: "")
 		mi.target  = self
@@ -122,10 +131,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 	
 	@objc private func activateCloseAfterUpdateMode() {
 		Utils.closeAfterUpdate = true
-		
-		updatePlugins() {
-			self.quit()
-		}
+		updatePlugins(thenQuit: true)
 	}
 	
 	@objc private func toggleStartAtLogin() {
@@ -145,9 +151,15 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		update()
 	}
 	
+	@objc private func toggleUpdateXcodeBeta() {
+		Utils.updateXcodeBeta = !Utils.updateXcodeBeta
+		updateXcodeBetaItem.state = Utils.updateXcodeBeta ? NSOnState : NSOffState
+		
+		update()
+	}
+	
 	@objc private func toggleDisplayTotal() {
 		Utils.displayTotalPlugins = !Utils.displayTotalPlugins
-		Utils.userDefaults.synchronize()
 		
 		displayTotalItem.state = Utils.displayTotalPlugins ? NSOnState : NSOffState
 		updateUpdateItemTitle()
@@ -160,27 +172,43 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 	
 	// MARK: - Reverting
 	
-	@objc private func revertPlugins(plugins: [NSURL]?) {
+	private func revertPlugins(plugins: [NSURL]?, xcode: Sandbox.XcodeType) {
 //		Sandbox.askForSandboxPermissionFor(.Plugins, success: {
-		let result = Sandbox.updatePlugins(plugins?.map() {
-			return $0.URLByAppendingPathComponent("Contents/Info.plist")
-			}, revert: true)
+		let result = Sandbox.revertPlugins(
+			plugins?.map() {
+				return $0.URLByAppendingPathComponent("Contents/Info.plist")
+			}, xcode: xcode
+		)
 		
-		if result.0 > 0 && result.1 > 0 {
+		let forXcode: String = {
+			if Utils.updateXcodeBeta {
+				return " for \(xcode.rawValue)"
+			}
+			
+			return ""
+		}()
+		
+		if result.0 > 0 {
 			if result.0 == 1 {
-				Utils.postNotificationWithText("\(result.0) plug-in has been reverted.", success: true)
+				Utils.postNotificationWithText("\(result.0) plug-in has been reverted\(forXcode).", success: true)
 			}
 			else {
-				Utils.postNotificationWithText("\(result.0) plug-ins have been reverted.", success: true)
+				Utils.postNotificationWithText("\(result.0) plug-ins have been reverted\(forXcode).", success: true)
 			}
 		}
 		else if result.success {
-			Utils.postNotificationWithText("No plug-ins were updated with PlugRocket.", success: true)
+			Utils.postNotificationWithText("No plug-ins were updated with PlugRocket\(forXcode).", success: true)
 		}
 	}
 	
 	@objc private func revertAllPlugins() {
-		revertPlugins(nil)
+		revertPlugins(nil, xcode: .Production)
+		
+		if Utils.updateXcodeBeta {
+			Utils.delay(2.0) {
+				self.revertPlugins(nil, xcode: .Beta)
+			}
+		}
 	}
 	
 	@objc private func revertSomePlugins() {
@@ -191,18 +219,38 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		
 		guard Sandbox.openPanel.runModal() == NSFileHandlingPanelOKButton else { return }
 		
-		revertPlugins(Sandbox.openPanel.URLs)
+		revertPlugins(Sandbox.openPanel.URLs, xcode: .Production)
+		
+		if Utils.updateXcodeBeta {
+			Utils.delay(2.0) {
+				self.revertPlugins(Sandbox.openPanel.URLs, xcode: .Beta)
+			}
+		}
 	}
 	
 	
 	// MARK: - Updating
 	
-	// Just for the button, because the sender gets fucked up with the completionBlock otherwise
 	@objc private func updatePlugins() {
-		updatePlugins({})
+		updatePlugins(thenQuit: false)
 	}
 	
-	private func updatePlugins(completion: () -> Void) {
+	private func updatePlugins(thenQuit quit: Bool) { // No default value, so it has a different signature than the above one
+		updatePluginsFor(.Production) { [unowned self] in
+			if Utils.updateXcodeBeta {
+				Utils.delay(2.0) {
+					self.updatePluginsFor(.Beta) {
+						if quit { self.quit() }
+					}
+				}
+			}
+			else {
+				if quit { self.quit() }
+			}
+		}
+	}
+	
+	private func updatePluginsFor(xcode: Sandbox.XcodeType, completion: () -> Void) {
 		guard Utils.disclaimerShown else {
 			Utils.showDisclaimer { self.updatePlugins() }
 			return
@@ -225,7 +273,6 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 			// auto-turn on the option, so it's obvious what it does.
 			if totalPlugins == 0 && Utils.totalPlugins > 0 {
 				Utils.displayTotalPlugins = true
-				Utils.userDefaults.synchronize()
 				
 				self.updateUpdateItemTitle()
 				self.displayTotalItem.state = NSOnState
@@ -240,50 +287,64 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		
 //		Sandbox.askForSandboxPermissionFor(.Plugins, success: {
 		guard
-			let xcodeUUID = Sandbox.runScriptFor(.Xcode)?
+			let xcodeUUID = Sandbox.runXcodeScriptFor(xcode)?
 				.stringByReplacingOccurrencesOfString("\n", withString: "")
 			where !xcodeUUID.isEmpty else {
-				Utils.postNotificationWithText("Could not read Xcode's UUID.")
+				Utils.postNotificationWithText("Could not read Xcode\(xcode == .Beta ? "-beta" : "")'s UUID.") // blrgh
 				return // This should never happen
 		}
 		
-		if Utils.xcodeUUID != xcodeUUID {
-			Utils.xcodeUUID = xcodeUUID
-			Utils.updatedPlugins = [String]()
-			Utils.userDefaults.synchronize()
+		if xcode == .Production {
+			if Utils.xcodeUUID != xcodeUUID {
+				Utils.xcodeUUID = xcodeUUID
+				Utils.updatedPlugins = [String]()
+			}
+		}
+		else {
+			if Utils.xcodeBetaUUID != xcodeUUID {
+				Utils.xcodeBetaUUID = xcodeUUID
+				Utils.updatedBetaPlugins = [String]()
+			}
 		}
 		
-		self.postUpdateNotification(Sandbox.updatePlugins())
+		self.postUpdateNotification(xcode: xcode, result: Sandbox.updatePlugins(xcode: xcode))
 		finishUpdate()
 		completion()
 		
 		return
 	}
 	
-	private func postUpdateNotification(result: (Int, Int, success: Bool)) {
+	private func postUpdateNotification(xcode xcode: Sandbox.XcodeType, result: (Int, Int, success: Bool)) {
 		// If success is false, we already posted a notification.
 		guard result.success else { return }
 		
 		updatedPlugins = result.0
 		uptodatePlugins = result.1
 		
-		let text: String
+		let withXcode: String = {
+			if Utils.updateXcodeBeta {
+				return " with \(xcode.rawValue)"
+			}
+			
+			return ""
+		}()
 		
-		switch (updatedPlugins, uptodatePlugins) {
-		case (0, 0): text = "You have no plugins."
-		case (0, 1): text = "You have only one plugin, and it was already up to date."
-		case (1, 0): text = "You have only one plugin, and it has been updated."
-		case (1, 1): text = "1 plugin was updated, 1 plugin was already up-to-date."
-		case (0, _): text = "All \(uptodatePlugins) plugins were already up-to-date."
-		case (1, _): text = "1 plugin was updated, \(uptodatePlugins) plugins were already up-to-date."
-		case (_, 0): text = "All \(updatedPlugins) plugins were updated."
-		case (_, 1): text = "\(updatedPlugins) plugins were updated, 1 plugin was already up-to-date."
-		case (_, _): text = "\(updatedPlugins) plugins were updated, \(uptodatePlugins) plugins were already up-to-date."
-		}
+		let text: String = {
+			switch (updatedPlugins, uptodatePlugins) {
+			case (0, 0): return "You have no plugins."
+			case (0, 1): return "You have only one plugin, and it was already up to date\(withXcode)."
+			case (1, 0): return "You have only one plugin\(withXcode), and it has been updated."
+			case (1, 1): return "1 plugin was updated\(withXcode), 1 plugin was already up-to-date."
+			case (0, _): return "All \(uptodatePlugins) plugins were already up-to-date\(withXcode)."
+			case (1, _): return "1 plugin was updated\(withXcode), \(uptodatePlugins) plugins were already up-to-date."
+			case (_, 0): return "All \(updatedPlugins) plugins were updated\(withXcode)."
+			case (_, 1): return "\(updatedPlugins) plugins were updated\(withXcode), 1 plugin was already up-to-date."
+			case (_, _): return "\(updatedPlugins) plugins were updated\(withXcode), \(uptodatePlugins) plugins were already up-to-date."
+			}
+		}()
 		
 		Utils.postNotificationWithText(text, success: true)
 		Utils.totalPlugins = updatedPlugins + uptodatePlugins
-		Utils.userDefaults.synchronize()
 	}
 	
 	
@@ -304,6 +365,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 			addItem(displayTotalItem)
 		}
 		addItem(startAtLoginItem)
+		addItem(updateXcodeBetaItem)
 		addItem(NSMenuItem.separatorItem())
 		addItem(revertItem)
 		addItem(closeAfterUpdateItem)
@@ -315,9 +377,7 @@ class Menu: NSMenu, NSUserNotificationCenterDelegate {
 		
 		let modifierPressed = NSEvent.modifierFlags() == .AlternateKeyMask || NSEvent.modifierFlags() == .CommandKeyMask
 		if Utils.closeAfterUpdate && !modifierPressed {
-			updatePlugins() {
-				self.quit()
-			}
+			updatePlugins(thenQuit: true)
 		}
 		else {
 			Utils.closeAfterUpdate = false

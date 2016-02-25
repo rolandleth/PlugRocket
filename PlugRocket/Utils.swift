@@ -11,13 +11,16 @@ import Cocoa
 
 struct Utils {
 	
-	private static let updatedPluginsKey = "updatedPluginsKey"
-	private static let disclaimerShownKey = "disclaimerShownKey"
-	private static let closeAfterUpdateKey = "closeAfterUpdateKey"
-	private static let startAtLoginKey = "startAtLoginKey"
+	private static let updatedPluginsKey      = "updatedPluginsKey"
+	private static let updatedBetaPluginsKey  = "updatedBetaPluginsKey"
+	private static let disclaimerShownKey     = "disclaimerShownKey"
+	private static let closeAfterUpdateKey    = "closeAfterUpdateKey"
+	private static let startAtLoginKey        = "startAtLoginKey"
+	private static let updateXcodeBetaKey     = "updateXcodeBetaKey"
 	private static let displayTotalPluginsKey = "displayTotalPlugins"
-	private static let totalPluginsKey = "totalPlugins"
-	private static let xcodeUUIDKey = "xcodeUUID"
+	private static let totalPluginsKey        = "totalPlugins"
+	private static let xcodeUUIDKey           = "xcodeUUID"
+	private static let xcodeBetaUUIDKey       = "xcodeBetaUUID"
 	
 	static var user: String {
 		return NSFileManager().currentDirectoryPath.componentsSeparatedByString("/")[2]
@@ -37,31 +40,43 @@ struct Utils {
 	
 	static var disclaimerShown: Bool {
 		get { return userDefaults.boolForKey(disclaimerShownKey) }
-		set { userDefaults.setBool(newValue, forKey: disclaimerShownKey) }
+		set { userDefaults.setBool(newValue, forKey: disclaimerShownKey); userDefaults.synchronize() }
 	}
 	static var closeAfterUpdate: Bool {
 		get { return userDefaults.boolForKey(closeAfterUpdateKey) }
-		set { userDefaults.setBool(newValue, forKey: closeAfterUpdateKey) }
+		set { userDefaults.setBool(newValue, forKey: closeAfterUpdateKey); userDefaults.synchronize() }
 	}
 	static var startAtLogin: Bool {
 		get { return userDefaults.boolForKey(startAtLoginKey) }
-		set { userDefaults.setBool(newValue, forKey: startAtLoginKey) }
+		set { userDefaults.setBool(newValue, forKey: startAtLoginKey); userDefaults.synchronize() }
+	}
+	static var updateXcodeBeta: Bool {
+		get { return userDefaults.boolForKey(updateXcodeBetaKey) }
+		set { userDefaults.setBool(newValue, forKey: updateXcodeBetaKey); userDefaults.synchronize() }
 	}
 	static var displayTotalPlugins: Bool {
 		get { return totalPlugins > 0 && userDefaults.boolForKey(displayTotalPluginsKey) }
-		set { userDefaults.setBool(newValue, forKey: displayTotalPluginsKey) }
+		set { userDefaults.setBool(newValue, forKey: displayTotalPluginsKey); userDefaults.synchronize() }
 	}
 	static var totalPlugins: Int {
 		get { return userDefaults.integerForKey(totalPluginsKey) }
-		set { userDefaults.setInteger(newValue, forKey: totalPluginsKey) }
+		set { userDefaults.setInteger(newValue, forKey: totalPluginsKey); userDefaults.synchronize() }
 	}
 	static var xcodeUUID: String {
 		get { return userDefaults.stringForKey(xcodeUUIDKey) ?? "" }
-		set { userDefaults.setObject(newValue, forKey: xcodeUUIDKey) }
+		set { userDefaults.setObject(newValue, forKey: xcodeUUIDKey); userDefaults.synchronize() }
+	}
+	static var xcodeBetaUUID: String {
+		get { return userDefaults.stringForKey(xcodeBetaUUIDKey) ?? "" }
+		set { userDefaults.setObject(newValue, forKey: xcodeBetaUUIDKey); userDefaults.synchronize() }
 	}
 	static var updatedPlugins: [String] {
 		get { return userDefaults.arrayForKey(updatedPluginsKey) as? [String] ?? [String]() }
-		set { userDefaults.setObject(newValue, forKey: updatedPluginsKey) }
+		set { userDefaults.setObject(newValue, forKey: updatedPluginsKey); userDefaults.synchronize() }
+	}
+	static var updatedBetaPlugins: [String] {
+		get { return userDefaults.arrayForKey(updatedBetaPluginsKey) as? [String] ?? [String]() }
+		set { userDefaults.setObject(newValue, forKey: updatedBetaPluginsKey); userDefaults.synchronize() }
 	}
 	
 	static var userDefaults: NSUserDefaults { return NSUserDefaults.standardUserDefaults() }
@@ -106,5 +121,13 @@ struct Utils {
 		NSUserNotificationCenter
 			.defaultUserNotificationCenter()
 			.deliverNotification(n)
+	}
+	
+	static func delay(delay: Double, closure: () -> ()) {
+		dispatch_after(
+			dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))),
+			dispatch_get_main_queue(),
+			closure
+		)
 	}
 }

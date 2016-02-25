@@ -11,9 +11,9 @@ import Cocoa
 
 struct Sandbox {
 	
-	enum Location {
-		case Plugins
-		case Xcode
+	enum XcodeType: String {
+		case Production = "Xcode"
+		case Beta       = "Xcode-beta"
 	}
 	
 	static let genericErrorMessage = "Something went wrong."
@@ -32,8 +32,13 @@ struct Sandbox {
 		return op
 	}()
 	
-	static func runScriptFor(location: Location) -> String? {
-		let script = location == .Plugins ? "plugins_script" : "xcode_uuid_script"
+	static func runXcodeScriptFor(xcode: XcodeType) -> String? {
+		let script: String = {
+			switch xcode {
+			case .Production: return "xcode_uuid_script"
+			case .Beta: return "xcode_beta_uuid_script"
+			}
+		}()
 		
 		let task = NSTask()
 		task.launchPath = "/usr/bin/ruby"
@@ -71,7 +76,15 @@ struct Sandbox {
 		}, success: true)
 	}
 	
-	static func updatePlugins(plugins: [NSURL]? = nil, revert reverting: Bool = false) -> (Int, Int, success: Bool) {
+	static func revertPlugins(plugins: [NSURL]? = nil, xcode: XcodeType) -> (Int, Int, success: Bool) {
+		return updatePlugins(plugins, xcode: xcode, revert: true)
+	}
+	
+	static func updatePlugins(plugins: [NSURL]? = nil, xcode: XcodeType) -> (Int, Int, success: Bool) {
+		return updatePlugins(plugins, xcode: xcode, revert: false)
+	}
+	
+	private static func updatePlugins(plugins: [NSURL]? = nil, xcode: XcodeType, revert reverting: Bool) -> (Int, Int, success: Bool) {
 		let result = pluginPlists()
 		let plists = plugins ?? result.0
 		
@@ -80,8 +93,8 @@ struct Sandbox {
 			return (0, 0, success: false)
 		}
 		
-		var updatedPlugins = 0
-		var uptodatePlugins = 0
+		var pluginsUpdated = 0
+		var pluginsUptodate = 0
 		
 		for plist in plists.reverse() {
 			guard
@@ -90,32 +103,59 @@ struct Sandbox {
 					continue
 			}
 			
-			if let UUIDIndex = plistUUIDs.indexOf(Utils.xcodeUUID) {
-				uptodatePlugins++
-
-				if reverting, let URLIndex = Utils.updatedPlugins.indexOf(plist.absoluteString) {
-					updatedPlugins++
-					
-					Utils.updatedPlugins.removeAtIndex(URLIndex)
+			var pluginUpdated = false
+			let xcodeUUID = (xcode == .Production) ? Utils.xcodeUUID : Utils.xcodeBetaUUID
+			
+			if reverting {
+				if let UUIDIndex = plistUUIDs.indexOf(xcodeUUID) {
+					pluginUpdated = true
 					plistUUIDs.removeAtIndex(UUIDIndex)
 				}
-			}
-			else if !reverting {
-				updatedPlugins++
 				
-				Utils.updatedPlugins.append(plist.absoluteString)
-				plistUUIDs.append(Utils.xcodeUUID)
+				if xcode == .Production,
+					let URLIndex = Utils.updatedPlugins.indexOf(plist.absoluteString) {
+						Utils.updatedPlugins.removeAtIndex(URLIndex)
+				}
+				else if xcode == .Beta,
+					let betaURLIndex = Utils.updatedBetaPlugins.indexOf(plist.absoluteString) {
+						Utils.updatedBetaPlugins.removeAtIndex(betaURLIndex)
+				}
+			}
+			else {
+				if !plistUUIDs.contains(xcodeUUID) {
+					pluginUpdated = true
+					plistUUIDs.append(xcodeUUID)
+					
+					if xcode == .Production {
+						Utils.updatedPlugins.append(plist.absoluteString)
+					}
+					else {
+						Utils.updatedBetaPlugins.append(plist.absoluteString)
+					}
+				}
+			}
+			
+			if pluginUpdated {
+				pluginsUpdated += 1
+			}
+			else {
+				pluginsUptodate += 1
 			}
 			
 			plistDictionary["DVTPlugInCompatibilityUUIDs"] = plistUUIDs
 			plistDictionary.writeToURL(plist, atomically: true)
 		}
 		
-		return (updatedPlugins, uptodatePlugins, success: true)
+		return (pluginsUpdated, pluginsUptodate, success: true)
 	}
 
 /*
 	// MARK: - Bookmarks
+	
+	enum Location {
+	  case Plugins
+	  case Xcode
+	}
 	
 	// I was afraid the app would need permission to read from Xcode's contents.
 	// Apparently not, but I just left the logic here, for an unexpected future.

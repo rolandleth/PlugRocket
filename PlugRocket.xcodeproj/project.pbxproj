@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2A0E68211C41581D00E9CFD0 /* xcode_uuid_script.rb in Resources */ = {isa = PBXBuildFile; fileRef = 2A0E68201C41581D00E9CFD0 /* xcode_uuid_script.rb */; };
+		2A204EE81C7EF89A0044AA9D /* xcode_beta_uuid_script.rb in Resources */ = {isa = PBXBuildFile; fileRef = 2A204EE71C7EF89A0044AA9D /* xcode_beta_uuid_script.rb */; };
 		2A499BDA1C42BDA600CFE643 /* PlugRocketHelper.app in Copy Helper App */ = {isa = PBXBuildFile; fileRef = 2A499BD81C42BD6300CFE643 /* PlugRocketHelper.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2A5AED221C1EE367002DC817 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5AED211C1EE367002DC817 /* AppDelegate.swift */; };
 		2A5AED241C1EE367002DC817 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A5AED231C1EE367002DC817 /* Assets.xcassets */; };
@@ -52,6 +53,7 @@
 
 /* Begin PBXFileReference section */
 		2A0E68201C41581D00E9CFD0 /* xcode_uuid_script.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = xcode_uuid_script.rb; sourceTree = "<group>"; };
+		2A204EE71C7EF89A0044AA9D /* xcode_beta_uuid_script.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = xcode_beta_uuid_script.rb; sourceTree = "<group>"; };
 		2A499BD31C42BD6300CFE643 /* PlugRocketHelper.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = PlugRocketHelper.xcodeproj; path = PlugRocketHelper/PlugRocketHelper.xcodeproj; sourceTree = "<group>"; };
 		2A5AED1E1C1EE367002DC817 /* PlugRocket.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PlugRocket.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A5AED211C1EE367002DC817 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -140,6 +142,7 @@
 				2A5AED231C1EE367002DC817 /* Assets.xcassets */,
 				2AF0F48E1C204B4600A043A1 /* PlugRocket.entitlements */,
 				2A5AED401C1F1702002DC817 /* plugins_script.rb */,
+				2A204EE71C7EF89A0044AA9D /* xcode_beta_uuid_script.rb */,
 				2A0E68201C41581D00E9CFD0 /* xcode_uuid_script.rb */,
 				2A5AED3C1C1EE4DC002DC817 /* MainMenu.xib */,
 				2A5AED281C1EE367002DC817 /* Info.plist */,
@@ -261,6 +264,7 @@
 				2A5AED241C1EE367002DC817 /* Assets.xcassets in Resources */,
 				2A5AED411C1F1702002DC817 /* plugins_script.rb in Resources */,
 				2A5AED3D1C1EE4DC002DC817 /* MainMenu.xib in Resources */,
+				2A204EE81C7EF89A0044AA9D /* xcode_beta_uuid_script.rb in Resources */,
 				2A0E68211C41581D00E9CFD0 /* xcode_uuid_script.rb in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
